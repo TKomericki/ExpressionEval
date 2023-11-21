@@ -13,10 +13,10 @@ import java.util.Objects;
  */
 @Getter
 public class UnaryExp extends Exp {
-    private final OperatorType operator;
-    private final Exp operand;
+    private OperatorType operator;
+    private Exp operand;
 
-    private static final List<OperatorType> validOperators = List.of(
+    private static List<OperatorType> validOperators = List.of(
             OperatorType.OPERATOR_PLUS,
             OperatorType.OPERATOR_MINUS,
             OperatorType.OPERATOR_NOT

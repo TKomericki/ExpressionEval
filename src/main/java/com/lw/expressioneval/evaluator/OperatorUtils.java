@@ -5,7 +5,7 @@ import com.lw.expressioneval.evaluator.enums.OperatorType;
 import java.util.Map;
 
 public class OperatorUtils {
-    public final static Map<String, OperatorType> operatorMapper = Map.ofEntries(
+    public static Map<String, OperatorType> operatorMapper = Map.ofEntries(
             Map.entry("^", OperatorType.OPERATOR_POWER),
             Map.entry("*", OperatorType.OPERATOR_MULTIPLY),
             Map.entry("/", OperatorType.OPERATOR_DIVIDE),

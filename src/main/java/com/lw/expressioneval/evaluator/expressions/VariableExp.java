@@ -7,7 +7,7 @@ import java.util.Map;
  * e.g. an expression 'person[2].age < 28' has 3 variable segments: two fields 'person' and 'age' and an index '[2]'
  */
 public abstract class VariableExp extends Exp {
-    public VariableExp next;
+    public abstract VariableExp getNext();
 
     public abstract Object calculate(Map<String, Object> jsonObj, Object currentObj);
 }

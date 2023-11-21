@@ -9,7 +9,7 @@ import java.util.Objects;
  * A class that represents string node
  */
 public class StringExp extends Exp {
-    private final String value;
+    private String value;
 
     public StringExp(String value) {
         this.value = value;

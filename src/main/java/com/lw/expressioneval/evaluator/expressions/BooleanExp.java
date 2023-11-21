@@ -9,7 +9,7 @@ import java.util.Objects;
  * A class that represents boolean node
  */
 public class BooleanExp extends Exp {
-    private final Boolean value;
+    private Boolean value;
 
     public BooleanExp(Boolean value) {
         this.value = value;

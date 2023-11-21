@@ -9,7 +9,7 @@ import java.util.Objects;
  * A class that represents number literal node
  */
 public class NumberExp extends Exp {
-    private final Number value;
+    private Number value;
 
     public NumberExp(Number value) {
         this.value = value;

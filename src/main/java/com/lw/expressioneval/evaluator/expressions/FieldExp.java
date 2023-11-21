@@ -13,7 +13,8 @@ import java.util.Objects;
  */
 @Getter
 public class FieldExp extends VariableExp {
-    private final String name;
+    private String name;
+    private VariableExp next;
 
     public FieldExp(String name, VariableExp next) {
         this.name = name;
@@ -59,6 +60,11 @@ public class FieldExp extends VariableExp {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public VariableExp getNext() {
+        return next;
     }
 
     @Override

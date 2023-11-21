@@ -101,7 +101,7 @@ public class ExpressionParserTests {
     void generateTokensFailsWhenCharacterDoesNotFormAnyToken() {
         String expression = "var ? 10";
         Exception exception = assertThrows(IllegalArgumentException.class, () -> ExpressionParser.generateTokens(expression));
-        assertEquals("Invalid character starting at index 4\nCharacter '?' does not form any viable token.", exception.getMessage());
+        assertEquals("Invalid character starting at index 0 in section: ?\nCharacter '?' does not form any viable token.", exception.getMessage());
     }
 
     @Test

@@ -15,12 +15,21 @@ import java.util.Objects;
  */
 @Getter
 public class IndexExp extends VariableExp {
-    public final Exp index;
+    private Exp index;
+    private VariableExp next;
 
     public IndexExp(Exp index, VariableExp next) {
+        if(index == null){
+            throw new IllegalArgumentException("An index expression must contain some index value");
+        }
         this.index = index;
         this.next = next;
         checkReturnTypeValidity();
+    }
+
+    @Override
+    public VariableExp getNext() {
+        return next;
     }
 
     @Override

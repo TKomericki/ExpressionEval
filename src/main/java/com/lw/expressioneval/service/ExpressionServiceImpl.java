@@ -35,7 +35,6 @@ public class ExpressionServiceImpl implements ExpressionService {
         }
         try {
             Exp ex = ExpressionParser.parseExpression(expression.value());
-            System.out.println(ex);
             List<ExpressionNode> nodes = ExpressionMapper.expressionToNodeList(ex);
             ExpressionTree tree = new ExpressionTree(expression.name(), nodes, nodes.get(nodes.size() - 1));
             return expressionTreeRepository.save(tree).getId();
@@ -50,7 +49,6 @@ public class ExpressionServiceImpl implements ExpressionService {
         if (result.isPresent()) {
             try {
                 Object evalResult = ExpressionMapper.treeToExpression(result.get()).calculate(map);
-                System.out.println(ExpressionMapper.treeToExpression(result.get()));
                 if (!(evalResult instanceof Boolean)) {
                     throw new IllegalArgumentException("Result of the logical expression must be a boolean, got: " + result);
                 }

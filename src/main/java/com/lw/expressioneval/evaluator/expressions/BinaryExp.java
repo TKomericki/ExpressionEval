@@ -13,11 +13,11 @@ import java.util.Objects;
  */
 @Getter
 public class BinaryExp extends Exp {
-    private final OperatorType operator;
-    private final Exp left;
-    private final Exp right;
+    private OperatorType operator;
+    private Exp left;
+    private Exp right;
 
-    private static final List<OperatorType> validOperators = List.of(
+    private static List<OperatorType> validOperators = List.of(
             OperatorType.OPERATOR_PLUS,
             OperatorType.OPERATOR_MINUS,
             OperatorType.OPERATOR_MULTIPLY,

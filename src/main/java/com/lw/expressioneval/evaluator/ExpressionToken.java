@@ -8,12 +8,20 @@ import java.util.Objects;
  * A class representing a token - a sequence of characters that are treated as a unit as it cannot be further broken down.
  */
 public class ExpressionToken {
-    public String tokenValue;
-    public TokenType tokenType;
+    private String tokenValue;
+    private TokenType tokenType;
 
     public ExpressionToken(String tokenValue, TokenType tokenType) {
         this.tokenValue = tokenValue;
         this.tokenType = tokenType;
+    }
+
+    public String getTokenValue() {
+        return tokenValue;
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
     }
 
     @Override

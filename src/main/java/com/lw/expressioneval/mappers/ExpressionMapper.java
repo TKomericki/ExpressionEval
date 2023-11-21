@@ -39,8 +39,8 @@ public class ExpressionMapper {
             ExpressionNode node = new ExpressionNode(NodeType.FIELD, null, null, null, null, ((FieldExp) e).getName());
 
             // if there are more expressions in chain, generate them and set them as right operand
-            if (((FieldExp) e).next != null) {
-                nodes.addAll(expressionToNodeList(((FieldExp) e).next));
+            if (((FieldExp) e).getNext() != null) {
+                nodes.addAll(expressionToNodeList(((FieldExp) e).getNext()));
                 node.setRightOperand(nodes.get(nodes.size() - 1));
             }
             nodes.add(node);
@@ -51,8 +51,8 @@ public class ExpressionMapper {
             ExpressionNode node = new ExpressionNode(NodeType.INDEX, null, nodes.get(nodes.size() - 1), null, null, null);
 
             // if there are more fields or indexes in chain, store them as right node
-            if (((IndexExp) e).next != null) {
-                nodes.addAll(expressionToNodeList(((IndexExp) e).next));
+            if (((IndexExp) e).getNext() != null) {
+                nodes.addAll(expressionToNodeList(((IndexExp) e).getNext()));
                 node.setRightOperand(nodes.get(nodes.size() - 1));
             }
             nodes.add(node);
