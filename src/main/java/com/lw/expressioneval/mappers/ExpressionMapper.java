@@ -13,6 +13,9 @@ import java.util.List;
  * A class that contains static methods for transforming expression syntax tree to database friendly format and vice versa
  */
 public class ExpressionMapper {
+    private ExpressionMapper() {
+    }
+
     /**
      * A recursive method that transforms a syntax subtree into a list of all of its nodes in a format suitable for saving to database
      *
@@ -21,38 +24,38 @@ public class ExpressionMapper {
      */
     public static List<ExpressionNode> expressionToNodeList(Exp e) {
         List<ExpressionNode> nodes = new ArrayList<>();
-        if (e instanceof BinaryExp) {
-            ExpressionNode node = new ExpressionNode(NodeType.BINARY, null, null, null, ((BinaryExp) e).getOperator(), null);
-            nodes.addAll(expressionToNodeList(((BinaryExp) e).getLeft()));
+        if (e instanceof BinaryExp binaryExp) {
+            ExpressionNode node = new ExpressionNode(NodeType.BINARY, null, null, null, binaryExp.getOperator(), null);
+            nodes.addAll(expressionToNodeList(binaryExp.getLeft()));
             node.setLeftOperand(nodes.get(nodes.size() - 1));
-            nodes.addAll(expressionToNodeList(((BinaryExp) e).getRight()));
+            nodes.addAll(expressionToNodeList(binaryExp.getRight()));
             node.setRightOperand(nodes.get(nodes.size() - 1));
 
             nodes.add(node);
-        } else if (e instanceof UnaryExp) {
-            ExpressionNode node = new ExpressionNode(NodeType.UNARY, null, null, null, ((UnaryExp) e).getOperator(), null);
-            nodes.addAll(expressionToNodeList(((UnaryExp) e).getOperand()));
+        } else if (e instanceof UnaryExp unaryExp) {
+            ExpressionNode node = new ExpressionNode(NodeType.UNARY, null, null, null, unaryExp.getOperator(), null);
+            nodes.addAll(expressionToNodeList(unaryExp.getOperand()));
             node.setRightOperand(nodes.get(nodes.size() - 1));
 
             nodes.add(node);
-        } else if (e instanceof FieldExp) {
-            ExpressionNode node = new ExpressionNode(NodeType.FIELD, null, null, null, null, ((FieldExp) e).getName());
+        } else if (e instanceof FieldExp fieldExp) {
+            ExpressionNode node = new ExpressionNode(NodeType.FIELD, null, null, null, null, fieldExp.getName());
 
             // if there are more expressions in chain, generate them and set them as right operand
-            if (((FieldExp) e).getNext() != null) {
-                nodes.addAll(expressionToNodeList(((FieldExp) e).getNext()));
+            if (fieldExp.getNext() != null) {
+                nodes.addAll(expressionToNodeList(fieldExp.getNext()));
                 node.setRightOperand(nodes.get(nodes.size() - 1));
             }
             nodes.add(node);
 
-        } else if (e instanceof IndexExp) {
+        } else if (e instanceof IndexExp indexExp) {
             // create index nodes first
-            nodes.addAll(expressionToNodeList(((IndexExp) e).getIndex()));
+            nodes.addAll(expressionToNodeList(indexExp.getIndex()));
             ExpressionNode node = new ExpressionNode(NodeType.INDEX, null, nodes.get(nodes.size() - 1), null, null, null);
 
             // if there are more fields or indexes in chain, store them as right node
-            if (((IndexExp) e).getNext() != null) {
-                nodes.addAll(expressionToNodeList(((IndexExp) e).getNext()));
+            if (indexExp.getNext() != null) {
+                nodes.addAll(expressionToNodeList(indexExp.getNext()));
                 node.setRightOperand(nodes.get(nodes.size() - 1));
             }
             nodes.add(node);

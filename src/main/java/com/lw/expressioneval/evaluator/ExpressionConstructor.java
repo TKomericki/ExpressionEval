@@ -10,6 +10,9 @@ import java.util.List;
  * A class that constructs and validates expression syntax tree.
  */
 public class ExpressionConstructor {
+    private ExpressionConstructor() {
+    }
+    
     /**
      * Method for constructing syntax tree from a list of {@link ExpressionToken} tokens.
      *
@@ -63,7 +66,7 @@ public class ExpressionConstructor {
         return node;
     }
 
-    private static UnaryExp unary(List<ExpressionToken> tokens){
+    private static UnaryExp unary(List<ExpressionToken> tokens) {
         ExpressionToken op = tokens.remove(0);
         if (!OperatorUtils.operatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
             throw new IllegalArgumentException("This is not an operator: " + op.getTokenValue());
@@ -127,16 +130,15 @@ public class ExpressionConstructor {
      * @throws IllegalStateException    if the dot token isn't followed by a variable token.
      * @throws IllegalArgumentException if index parenthesis have not been closed.
      */
-    private static VariableExp getNextVariable(List<ExpressionToken> tokens){
-        if (tokens.get(0).getTokenType() == TokenType.DOT){
+    private static VariableExp getNextVariable(List<ExpressionToken> tokens) {
+        if (tokens.get(0).getTokenType() == TokenType.DOT) {
             tokens.remove(0);
             if (tokens.get(0).getTokenType() != TokenType.VAR) {
                 throw new IllegalArgumentException("Expected variable token, got: " + tokens.get(0));
             }
             String tokenValue = tokens.remove(0).getTokenValue();
             return new FieldExp(tokenValue, getNextVariable(tokens));
-        }
-        else if(tokens.get(0).getTokenType() == TokenType.LEFT_IDX_P){
+        } else if (tokens.get(0).getTokenType() == TokenType.LEFT_IDX_P) {
             tokens.remove(0);
             Exp index = expression(0, tokens);
             if (tokens.get(0).getTokenType() != TokenType.RIGHT_IDX_P) {
@@ -144,8 +146,7 @@ public class ExpressionConstructor {
             }
             tokens.remove(0);
             return new IndexExp(index, getNextVariable(tokens));
-        }
-        else {
+        } else {
             return null;
         }
     }

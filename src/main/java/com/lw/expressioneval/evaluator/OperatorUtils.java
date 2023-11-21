@@ -5,6 +5,9 @@ import com.lw.expressioneval.evaluator.enums.OperatorType;
 import java.util.Map;
 
 public class OperatorUtils {
+    private OperatorUtils() {
+    }
+
     public static Map<String, OperatorType> operatorMapper = Map.ofEntries(
             Map.entry("^", OperatorType.OPERATOR_POWER),
             Map.entry("*", OperatorType.OPERATOR_MULTIPLY),

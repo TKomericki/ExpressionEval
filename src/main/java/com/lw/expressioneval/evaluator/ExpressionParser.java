@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
  * {@link ExpressionToken} objects which are then validated.
  */
 public class ExpressionParser {
+    private ExpressionParser() {
+    }
+
     private static Map<TokenType, List<TokenType>> validPredecessors = Map.ofEntries(
             Map.entry(TokenType.START, Collections.emptyList()),
             Map.entry(TokenType.EXP_OP, List.of(TokenType.RIGHT_P, TokenType.RIGHT_IDX_P, TokenType.VAR, TokenType.NUM_CONST)),
@@ -33,6 +36,17 @@ public class ExpressionParser {
             Map.entry(TokenType.DOT, List.of(TokenType.RIGHT_IDX_P, TokenType.VAR)),
             Map.entry(TokenType.NULL, List.of(TokenType.START, TokenType.EQ_OP, TokenType.LOG_OP, TokenType.LEFT_P)),
             Map.entry(TokenType.END, List.of(TokenType.RIGHT_P, TokenType.RIGHT_IDX_P, TokenType.VAR, TokenType.NUM_CONST, TokenType.STR_CONST, TokenType.BOOL_CONST, TokenType.NULL))
+    );
+
+    private static Map<Character, TokenType> charToSimpleTokens = Map.ofEntries(
+            Map.entry('(', TokenType.LEFT_P),
+            Map.entry(')', TokenType.RIGHT_P),
+            Map.entry('[', TokenType.LEFT_IDX_P),
+            Map.entry(']', TokenType.RIGHT_IDX_P),
+            Map.entry('*', TokenType.MUL_OP),
+            Map.entry('/', TokenType.MUL_OP),
+            Map.entry('^', TokenType.EXP_OP),
+            Map.entry('.', TokenType.DOT)
     );
 
     /**
@@ -73,14 +87,20 @@ public class ExpressionParser {
      * by a valid token and whether all the parenthesis are properly opened and closed
      *
      * @param tokens a list of tokens to validate
-     * @throws IllegalStateException if any validation rule isn't met
+     * @throws IllegalArgumentException if any validation rule isn't met
      */
     protected static void validateTokens(List<ExpressionToken> tokens) {
-        // logic for parenthesis counting
-        boolean areBasicParenthesis = true;
-        Stack<Integer> parenthesis = new Stack<>();
-        int openParenthesisCount = 0;
+        validatePredecessors(tokens);
+        validateParenthesis(tokens);
+    }
 
+    /**
+     * Method which checks whether all the tokens are preceded by a valid token and whether the list contains proper beginning and end.
+     *
+     * @param tokens a list of tokens to validate
+     * @throws IllegalArgumentException if a predecessor is illegal or proper first/last token is missing.
+     */
+    private static void validatePredecessors(List<ExpressionToken> tokens) {
         if (tokens.get(0).getTokenType() != TokenType.START) {
             throw new IllegalArgumentException("First token must be a start token, current first token: " + tokens.get(0));
         }
@@ -94,10 +114,28 @@ public class ExpressionParser {
             if (!validPredecessors.get(curToken.getTokenType()).contains(tokens.get(idx - 1).getTokenType())) {
                 throw new IllegalArgumentException("Token '" + tokens.get(idx - 1) + "' must not appear before token '" + curToken + "'");
             }
+        }
+    }
 
-            if (curToken.getTokenType() == (areBasicParenthesis ? TokenType.LEFT_P : TokenType.LEFT_IDX_P)) {
+    /**
+     * Method which checks whether all the parenthesis are properly opened and closed. This is done by tracking one type
+     * of parenthesis and switching the tracking to the other when they are opened.
+     *
+     * @param tokens a list of tokens to validate
+     * @throws IllegalArgumentException if the parenthesis are closed before being opened or if not all parenthesis are closed
+     */
+    private static void validateParenthesis(List<ExpressionToken> tokens) {
+        // logic for parenthesis counting
+        boolean areBasicParenthesis = true;
+        Stack<Integer> parenthesis = new Stack<>();
+        int openParenthesisCount = 0;
+
+        for (ExpressionToken token : tokens) {
+            // check if brackets are properly opened and closed
+            // this part counts number of open parenthesis of only one type at a time, switching when a different type appears
+            if (token.getTokenType() == (areBasicParenthesis ? TokenType.LEFT_P : TokenType.LEFT_IDX_P)) {
                 openParenthesisCount++;
-            } else if (curToken.getTokenType() == (areBasicParenthesis ? TokenType.RIGHT_P : TokenType.RIGHT_IDX_P)) {
+            } else if (token.getTokenType() == (areBasicParenthesis ? TokenType.RIGHT_P : TokenType.RIGHT_IDX_P)) {
                 if (openParenthesisCount == 0) {
                     throw new IllegalArgumentException("Parenthesis are closed before being opened.");
                 }
@@ -107,11 +145,11 @@ public class ExpressionParser {
                     openParenthesisCount = parenthesis.pop();
                     areBasicParenthesis = !areBasicParenthesis;
                 }
-            } else if (curToken.getTokenType() == (areBasicParenthesis ? TokenType.LEFT_IDX_P : TokenType.LEFT_P)) {
+            } else if (token.getTokenType() == (areBasicParenthesis ? TokenType.LEFT_IDX_P : TokenType.LEFT_P)) {
                 parenthesis.push(openParenthesisCount);
                 openParenthesisCount = 1;
                 areBasicParenthesis = !areBasicParenthesis;
-            } else if (curToken.getTokenType() == (areBasicParenthesis ? TokenType.RIGHT_IDX_P : TokenType.RIGHT_P)) {
+            } else if (token.getTokenType() == (areBasicParenthesis ? TokenType.RIGHT_IDX_P : TokenType.RIGHT_P)) {
                 throw new IllegalArgumentException("Parenthesis are closed before being opened.");
             }
         }
@@ -149,34 +187,11 @@ public class ExpressionParser {
             char c = section.charAt(idx);
             int consumeNext = 1;
 
-            if (c == '(') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.LEFT_P));
-            } else if (c == ')') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.RIGHT_P));
-            } else if (c == '[') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.LEFT_IDX_P));
-            } else if (c == ']') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.RIGHT_IDX_P));
-                // there may be more fields after the index
-                String extractedString = findRegex(section.substring(idx), "](\\.[\\w$]+)*");
-                consumeNext = extractedString.length();
-
-                // remove ]
-                extractedString = extractedString.substring(1);
-                if (!extractedString.isEmpty()) {
-                    String[] parts = extractedString.split("\\.");
-                    for (int i = 1; i < parts.length; i++) {
-                        tokens.add(new ExpressionToken(".", TokenType.DOT));
-                        tokens.add(new ExpressionToken(parts[i], TokenType.VAR));
-                    }
-                }
-            } else if (c == '*' || c == '/') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.MUL_OP));
-            } else if (c == '^') {
-                tokens.add(new ExpressionToken(String.valueOf(c), TokenType.EXP_OP));
-            }
-            // check if the character is - or + as they can be both unary and binary operators
-            else if (c == '+' || c == '-') {
+            // some characters do not require additional parsing, so their processing is simple
+            if (charToSimpleTokens.containsKey(c)) {
+                tokens.add(new ExpressionToken(String.valueOf(c), charToSimpleTokens.get(c)));
+            } else if (c == '+' || c == '-') {
+                // + and - can be both unary and binary operators
                 ExpressionToken previousToken = tokens.get(tokens.size() - 1);
 
                 if (previousToken.getTokenType() == TokenType.RIGHT_P || previousToken.getTokenType() == TokenType.VAR ||
@@ -186,15 +201,14 @@ public class ExpressionParser {
                     tokens.add(new ExpressionToken(String.valueOf(c), TokenType.UN_OP));
                 }
             } else if (Character.isLetterOrDigit(c) || c == '_' || c == '$') {
+                // this regex can produce a number, null, boolean, logical operand or a variable
                 String extractedString = findRegex(section.substring(idx), "[\\w$]+(\\.[\\w$]+)*");
                 consumeNext = extractedString.length();
 
-                // attempt to convert this to a number
                 try {
                     Double.parseDouble(extractedString);
                     tokens.add(new ExpressionToken(extractedString, TokenType.NUM_CONST));
                 } catch (NumberFormatException e) {
-                    // this could be a logical operand, a null value, a bool value or a variable
                     if (extractedString.equalsIgnoreCase("or") || extractedString.equalsIgnoreCase("and") ||
                             extractedString.equalsIgnoreCase("not")) {
                         tokens.add(new ExpressionToken(extractedString, TokenType.LOG_OP));
@@ -211,19 +225,16 @@ public class ExpressionParser {
                         }
                     }
                 }
-            }
-            // check if there are quotation marks
-            else if (c == '"') {
+            } else if (c == '"') {
+                // quotation marks represent string literal
                 String extractedString = findRegex(section.substring(idx), "\".*[^\\ ]\"");
                 consumeNext = extractedString.length();
 
-                // we don't need additional quotation marks at the beginning and the end of the string literal
+                // remove quotation marks as they are not part of the string literal
                 tokens.add(new ExpressionToken(extractedString.substring(1, extractedString.length() - 1), TokenType.STR_CONST));
-            }
-            // we either have one of the logical or equality operators or an error
-            else {
+            } else {
+                // last options are 2 character tokens or the ones depending on the following token
                 char nextChar = idx == section.length() - 1 ? '\0' : section.charAt(idx + 1);
-                // logical operators
                 if (c == '|' && nextChar == '|' || c == '&' && nextChar == '&') {
                     consumeNext = 2;
                     tokens.add(new ExpressionToken(section.substring(idx, idx + 2), TokenType.LOG_OP));

@@ -19,7 +19,7 @@ public class IndexExp extends VariableExp {
     private VariableExp next;
 
     public IndexExp(Exp index, VariableExp next) {
-        if(index == null){
+        if (index == null) {
             throw new IllegalArgumentException("An index expression must contain some index value");
         }
         this.index = index;
