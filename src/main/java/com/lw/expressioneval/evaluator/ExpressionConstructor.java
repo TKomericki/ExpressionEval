@@ -12,7 +12,7 @@ import java.util.List;
 public class ExpressionConstructor {
     private ExpressionConstructor() {
     }
-    
+
     /**
      * Method for constructing syntax tree from a list of {@link ExpressionToken} tokens.
      *
