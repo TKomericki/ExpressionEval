@@ -44,10 +44,6 @@ public class ExpressionTree {
 
     @Override
     public String toString() {
-        return "ExpressionTree{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", rootNode=" + rootNode +
-                '}';
+        return String.format("ExpressionTree{id=%d, name='%s', rootNode=%s}", id, name, rootNode);
     }
 }

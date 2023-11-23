@@ -39,7 +39,7 @@ public class ExpressionServiceImpl implements ExpressionService {
             ExpressionTree tree = new ExpressionTree(expression.name(), nodes, nodes.get(nodes.size() - 1));
             return expressionTreeRepository.save(tree).getId();
         } catch (IllegalArgumentException | IllegalStateException e) {
-            throw new BadRequestException("'" + expression.value() + "' is not a valid expression.\n" + e.getMessage());
+            throw new BadRequestException(String.format("'%s' is not a valid expression.\n%s", expression.value(), e.getMessage()));
         }
     }
 
@@ -50,7 +50,7 @@ public class ExpressionServiceImpl implements ExpressionService {
             try {
                 Object evalResult = ExpressionMapper.treeToExpression(result.get()).calculate(map);
                 if (!(evalResult instanceof Boolean)) {
-                    throw new IllegalArgumentException("Result of the logical expression must be a boolean, got: " + result);
+                    throw new IllegalArgumentException(String.format("Result of the logical expression must be a boolean, got: %s", result));
                 }
                 return (Boolean) evalResult;
             } catch (IllegalArgumentException | IllegalStateException e) {

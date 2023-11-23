@@ -35,6 +35,9 @@ public class ExpressionEvaluationTests {
         Exp ex2 = ExpressionParser.parseExpression(ValidExpressions.validExpression2);
         Exception exception2 = assertThrows(IllegalArgumentException.class, () -> ex2.calculate(Map.of("variable", "value")));
         assertEquals("Object given is not a map: String", exception2.getMessage());
+
+        Exception exception3 = assertThrows(IllegalArgumentException.class, () -> ex2.calculate(Map.of("wrong_variable", "value")));
+        assertEquals("Object given is not a map: null", exception3.getMessage());
     }
 
     @Test

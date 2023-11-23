@@ -53,14 +53,7 @@ public class ExpressionNode {
 
     @Override
     public String toString() {
-        return "ExpressionNode{" +
-                "id=" + id +
-                ", nodeType='" + nodeType + '\'' +
-                ", tree=" + tree +
-                ", leftOperand=" + leftOperand +
-                ", rightOperand=" + rightOperand +
-                ", type=" + operator +
-                ", nodeValue='" + nodeValue + '\'' +
-                '}';
+        return String.format("ExpressionNode{id=%d, nodeType='%s', tree=%s, leftOperand=%s, rightOperand=%s, type=%s, nodeValue='%s'}",
+                id, nodeType, tree, leftOperand, rightOperand, operator, nodeValue);
     }
 }

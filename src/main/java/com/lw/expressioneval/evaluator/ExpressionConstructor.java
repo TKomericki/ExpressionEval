@@ -24,7 +24,7 @@ public class ExpressionConstructor {
         List<ExpressionToken> expressionTokens = new ArrayList<>(tokens);
         // Remove start token
         if (expressionTokens.get(0).getTokenType() != TokenType.START) {
-            throw new IllegalStateException("First token must be a start token, current first token: " + expressionTokens.get(0));
+            throw new IllegalStateException(String.format("First token must be a start token, current first token: %s", expressionTokens.get(0)));
         }
         expressionTokens.remove(0);
 
@@ -54,7 +54,7 @@ public class ExpressionConstructor {
         while (isBinaryOperator(tokens.get(0)) && getPrecedence(tokens.get(0)) >= precedence) {
             ExpressionToken op = tokens.remove(0);
             if (!OperatorUtils.operatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
-                throw new IllegalArgumentException("This is not an operator: " + op.getTokenValue());
+                throw new IllegalArgumentException(String.format("This is not an operator: %s", op.getTokenValue()));
             }
 
             int prec = getPrecedence(op);
@@ -69,7 +69,7 @@ public class ExpressionConstructor {
     private static UnaryExp unary(List<ExpressionToken> tokens) {
         ExpressionToken op = tokens.remove(0);
         if (!OperatorUtils.operatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
-            throw new IllegalArgumentException("This is not an operator: " + op.getTokenValue());
+            throw new IllegalArgumentException(String.format("This is not an operator: %s", op.getTokenValue()));
         }
 
         int precedence = getPrecedence(op);
@@ -93,7 +93,7 @@ public class ExpressionConstructor {
             tokens.remove(0);
             Exp node = expression(0, tokens);
             if (tokens.remove(0).getTokenType() != TokenType.RIGHT_P) {
-                throw new IllegalStateException("Parenthesis not properly closed, instead given: " + tokens.get(0));
+                throw new IllegalStateException(String.format("Parenthesis not properly closed, instead given: %s", tokens.get(0)));
             }
             return node;
         } else {
@@ -113,7 +113,7 @@ public class ExpressionConstructor {
             } else if (tok.getTokenType() == TokenType.NULL) {
                 return new NullExp();
             } else {
-                throw new IllegalArgumentException("Token given is not an operand: " + tok);
+                throw new IllegalArgumentException(String.format("Token given is not an operand: %s", tok));
             }
         }
     }
@@ -134,7 +134,7 @@ public class ExpressionConstructor {
         if (tokens.get(0).getTokenType() == TokenType.DOT) {
             tokens.remove(0);
             if (tokens.get(0).getTokenType() != TokenType.VAR) {
-                throw new IllegalArgumentException("Expected variable token, got: " + tokens.get(0));
+                throw new IllegalArgumentException(String.format("Expected variable token, got: %s", tokens.get(0)));
             }
             String tokenValue = tokens.remove(0).getTokenValue();
             return new FieldExp(tokenValue, getNextVariable(tokens));
@@ -142,7 +142,7 @@ public class ExpressionConstructor {
             tokens.remove(0);
             Exp index = expression(0, tokens);
             if (tokens.get(0).getTokenType() != TokenType.RIGHT_IDX_P) {
-                throw new IllegalStateException("Index parenthesis not closed, instead given: " + tokens.get(0));
+                throw new IllegalStateException(String.format("Index parenthesis not closed, instead given: %s", tokens.get(0)));
             }
             tokens.remove(0);
             return new IndexExp(index, getNextVariable(tokens));
@@ -163,14 +163,14 @@ public class ExpressionConstructor {
         if (op.getTokenType() == TokenType.LOG_OP) {
             if (op.getTokenValue().equals("||") || op.getTokenValue().equalsIgnoreCase("or")) return 0;
             else if (op.getTokenValue().equals("&&") || op.getTokenValue().equalsIgnoreCase("and")) return 1;
-            else throw new IllegalArgumentException(op + " is not a valid logical operator");
+            else throw new IllegalArgumentException(String.format("%s is not a valid logical operator", op));
         } else if (op.getTokenType() == TokenType.LOG_UN_OP) return 2;
         else if (op.getTokenType() == TokenType.EQ_OP) return 3;
         else if (op.getTokenType() == TokenType.ADD_OP) return 4;
         else if (op.getTokenType() == TokenType.UN_OP) return 5;
         else if (op.getTokenType() == TokenType.MUL_OP) return 6;
         else if (op.getTokenType() == TokenType.EXP_OP) return 7;
-        throw new IllegalArgumentException(op + " is not an operator");
+        throw new IllegalArgumentException(String.format("%s is not an operator", op));
     }
 
     private static boolean isBinaryOperator(ExpressionToken tok) {

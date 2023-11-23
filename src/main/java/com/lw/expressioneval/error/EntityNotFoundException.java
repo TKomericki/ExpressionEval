@@ -12,6 +12,6 @@ public class EntityNotFoundException extends ErrorResponseException {
         super(HttpStatus.NOT_FOUND);
 
         this.getBody().setTitle(HttpStatus.NOT_FOUND.getReasonPhrase());
-        this.getBody().setDetail(entityName + " with id " + id + " is not found.");
+        this.getBody().setDetail(String.format("%s with id %d is not found.", entityName, id));
     }
 }

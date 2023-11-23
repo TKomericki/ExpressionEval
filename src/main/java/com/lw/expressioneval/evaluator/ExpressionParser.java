@@ -102,17 +102,17 @@ public class ExpressionParser {
      */
     private static void validatePredecessors(List<ExpressionToken> tokens) {
         if (tokens.get(0).getTokenType() != TokenType.START) {
-            throw new IllegalArgumentException("First token must be a start token, current first token: " + tokens.get(0));
+            throw new IllegalArgumentException(String.format("First token must be a start token, current first token: %s", tokens.get(0)));
         }
 
         if (tokens.get(tokens.size() - 1).getTokenType() != TokenType.END) {
-            throw new IllegalArgumentException("Last token must be an end token, current last token: " + tokens.get(tokens.size() - 1));
+            throw new IllegalArgumentException(String.format("Last token must be an end token, current last token: %s", tokens.get(tokens.size() - 1)));
         }
 
         for (int idx = 1; idx < tokens.size(); idx++) {
             ExpressionToken curToken = tokens.get(idx);
             if (!validPredecessors.get(curToken.getTokenType()).contains(tokens.get(idx - 1).getTokenType())) {
-                throw new IllegalArgumentException("Token '" + tokens.get(idx - 1) + "' must not appear before token '" + curToken + "'");
+                throw new IllegalArgumentException(String.format("Token '%s' must not appear before token '%s'", tokens.get(idx - 1), curToken));
             }
         }
     }
@@ -246,9 +246,8 @@ public class ExpressionParser {
                 } else if (c == '!') {
                     tokens.add(new ExpressionToken(String.valueOf(c), TokenType.LOG_UN_OP));
                 } else {
-                    String msg = "Invalid character starting at index " + (idx) + " in section: " + section +
-                            "\nCharacter '" + c + "' does not form any viable token.";
-                    throw new IllegalArgumentException(msg);
+                    String errorMessage = String.format("Invalid character starting at index %d in section: %s\nCharacter '%c' does not form any viable token.", idx, section, c);
+                    throw new IllegalArgumentException(errorMessage);
                 }
             }
 
@@ -270,8 +269,7 @@ public class ExpressionParser {
         if (matcher.find()) {
             return matcher.group();
         } else {
-            String msg = "Unable to find " + regex + "\nText: " + text;
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException(String.format("Unable to find %s\nText: %s", regex, text));
         }
     }
 }

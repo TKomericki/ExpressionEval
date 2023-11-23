@@ -35,7 +35,7 @@ public class BinaryExp extends Exp {
 
     public BinaryExp(OperatorType o, Exp l, Exp r) {
         if (!validOperators.contains(o)) {
-            throw new IllegalArgumentException("Unknown binary operator: " + o);
+            throw new IllegalArgumentException(String.format("Unknown binary operator: %s", o));
         }
         operator = o;
         left = l;
@@ -57,12 +57,12 @@ public class BinaryExp extends Exp {
         switch (operator) {
             case OPERATOR_MINUS, OPERATOR_MULTIPLY, OPERATOR_POWER, OPERATOR_GREATER, OPERATOR_LESS, OPERATOR_GREATER_EQUAL, OPERATOR_LESS_EQUAL -> {
                 if (cantBeNumber) {
-                    throw new IllegalArgumentException("Unable to apply '" + operator.label + "' binary operator on:\n" + left + "\n" + right);
+                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
                 }
             }
             case OPERATOR_DIVIDE -> {
                 if (cantBeNumber) {
-                    throw new IllegalArgumentException("Unable to apply '" + operator.label + "' binary operator on:\n" + left + "\n" + right);
+                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
                 } else if (rightExpType != ReturnType.VARIABLE && ((Number) right.calculate(null)).doubleValue() == 0) {
                     throw new IllegalArgumentException("Second operand of division is 0.");
                 }
@@ -70,13 +70,13 @@ public class BinaryExp extends Exp {
             case OPERATOR_PLUS -> {
                 if (!(leftExpType == ReturnType.INTEGER || leftExpType == ReturnType.DOUBLE || isLeftVar || leftExpType == ReturnType.STRING) ||
                         !(rightExpType == ReturnType.INTEGER || rightExpType == ReturnType.DOUBLE || isRightVar || rightExpType == ReturnType.STRING)) {
-                    throw new IllegalArgumentException("Unable to apply '+' binary operator on:\n" + left + "\n" + right);
+                    throw new IllegalArgumentException(String.format("Unable to apply '+' binary operator on:\n%s\n%s", left, right));
                 }
             }
             case OPERATOR_AND, OPERATOR_OR -> {
                 if (!(leftExpType == ReturnType.BOOLEAN || leftExpType == ReturnType.VARIABLE) ||
                         !(rightExpType == ReturnType.BOOLEAN || rightExpType == ReturnType.VARIABLE)) {
-                    throw new IllegalArgumentException("Unable to apply '" + operator.label + "' binary operator on:\n" + left + "\n" + right);
+                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
                 }
             }
         }
@@ -84,7 +84,7 @@ public class BinaryExp extends Exp {
 
     @Override
     public String toString() {
-        return "(" + left + " " + operator.label + " " + right + ")";
+        return String.format("(%s %s %s)", left, operator.label, right);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class BinaryExp extends Exp {
         // AND operator can finish without calculating right operand
         if (operator == OperatorType.OPERATOR_AND) {
             if (!(l instanceof Boolean)) {
-                throw new IllegalArgumentException("Unable to apply '&&' binary operand.\nFirst operand is not a boolean:\n" + l);
+                throw new IllegalArgumentException(String.format("Unable to apply '&&' binary operand.\nFirst operand is not a boolean:\n%s", l));
             }
             if (!(Boolean) l) return false;
         }
@@ -102,7 +102,7 @@ public class BinaryExp extends Exp {
         // OR operator can finish without calculating right operand
         if (operator == OperatorType.OPERATOR_OR) {
             if (!(l instanceof Boolean)) {
-                throw new IllegalArgumentException("Unable to apply '||' binary operand.\nFirst operand is not a boolean:\n" + l);
+                throw new IllegalArgumentException(String.format("Unable to apply '||' binary operand.\nFirst operand is not a boolean:\n%s", l));
             }
             if ((Boolean) l) return true;
         }
@@ -112,19 +112,19 @@ public class BinaryExp extends Exp {
         switch (operator) {
             case OPERATOR_MINUS -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '-' binary operand.\nOne of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '-' binary operand.\nOne of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() - ((Number) r).doubleValue();
             }
             case OPERATOR_MULTIPLY -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '*' binary operand.\nOne of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '*' binary operand.\nOne of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() * ((Number) r).doubleValue();
             }
             case OPERATOR_DIVIDE -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '/' binary operand.\nOne of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '/' binary operand.\nOne of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() / ((Number) r).doubleValue();
             }
@@ -135,27 +135,27 @@ public class BinaryExp extends Exp {
                     return l + rString;
                 } else {
                     if (!(l instanceof Number && r instanceof Number)) {
-                        throw new IllegalArgumentException("Unable to apply '+' binary operand.\nNone of the operators is a string and one of the operands is not a number:\n" + l + "\n" + r);
+                        throw new IllegalArgumentException(String.format("Unable to apply '+' binary operand.\nNone of the operators is a string and one of the operands is not a number:\n%s\n%s", l, r));
                     }
                 }
                 return ((Number) l).doubleValue() + ((Number) r).doubleValue();
             }
             case OPERATOR_POWER -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '^' binary operand.\nOne of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '^' binary operand.\nOne of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return Math.pow(((Number) l).doubleValue(), ((Number) r).doubleValue());
             }
             case OPERATOR_OR -> {
                 // first operand has already been checked so no need to repeat the check
                 if (!(r instanceof Boolean)) {
-                    throw new IllegalArgumentException("Unable to apply '&&' binary operand.\nSecond operand is not a boolean: " + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '&&' binary operand.\nSecond operand is not a boolean: %s", r));
                 }
                 return (Boolean) l || (Boolean) r;
             }
             case OPERATOR_AND -> {
                 if (!(r instanceof Boolean)) {
-                    throw new IllegalArgumentException("Unable to apply '&&' binary operand.\nSecond operand is not a boolean: " + r);
+                    throw new IllegalArgumentException(String.format("Unable to apply '&&' binary operand.\nSecond operand is not a boolean: %s", r));
                 }
                 return (Boolean) l && (Boolean) r;
             }
@@ -179,29 +179,29 @@ public class BinaryExp extends Exp {
             }
             case OPERATOR_GREATER -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("One of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("One of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() > ((Number) r).doubleValue();
             }
             case OPERATOR_LESS -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("One of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("One of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() < ((Number) r).doubleValue();
             }
             case OPERATOR_GREATER_EQUAL -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("One of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("One of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() >= ((Number) r).doubleValue();
             }
             case OPERATOR_LESS_EQUAL -> {
                 if (!(l instanceof Number && r instanceof Number)) {
-                    throw new IllegalArgumentException("One of the operands is not a number:\n" + l + "\n" + r);
+                    throw new IllegalArgumentException(String.format("One of the operands is not a number:\n%s\n%s", l, r));
                 }
                 return ((Number) l).doubleValue() <= ((Number) r).doubleValue();
             }
-            default -> throw new IllegalStateException("Unknown binary operator: " + operator);
+            default -> throw new IllegalStateException(String.format("Unknown binary operator: %s", operator));
         }
     }
 
@@ -236,7 +236,7 @@ public class BinaryExp extends Exp {
             case OPERATOR_AND, OPERATOR_OR, OPERATOR_GREATER, OPERATOR_LESS, OPERATOR_GREATER_EQUAL, OPERATOR_LESS_EQUAL, OPERATOR_EQUAL, OPERATOR_NOT_EQUAL -> {
                 return ReturnType.BOOLEAN;
             }
-            default -> throw new IllegalStateException("Unknown binary operator: " + operator);
+            default -> throw new IllegalStateException(String.format("Unknown binary operator: %s", operator));
         }
     }
 

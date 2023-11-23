@@ -24,7 +24,7 @@ public class UnaryExp extends Exp {
 
     public UnaryExp(OperatorType o, Exp e) {
         if (!validOperators.contains(o)) {
-            throw new IllegalArgumentException("Unknown unary operator: " + o);
+            throw new IllegalArgumentException(String.format("Unknown unary operator: %s", o));
         }
         operator = o;
         operand = e;
@@ -37,12 +37,12 @@ public class UnaryExp extends Exp {
         switch (operator) {
             case OPERATOR_PLUS, OPERATOR_MINUS -> {
                 if (!(expType == ReturnType.INTEGER || expType == ReturnType.DOUBLE || expType == ReturnType.VARIABLE || expType == ReturnType.NON_BOOLEAN)) {
-                    throw new IllegalArgumentException("Unable to apply '" + operator.label + "' unary operator on: " + operand);
+                    throw new IllegalArgumentException(String.format("Unable to apply '%s' unary operator on: %s", operator.label, operand));
                 }
             }
             case OPERATOR_NOT -> {
                 if (!(expType == ReturnType.BOOLEAN || expType == ReturnType.VARIABLE)) {
-                    throw new IllegalArgumentException("Unable to apply '!' unary operator on: " + operand);
+                    throw new IllegalArgumentException(String.format("Unable to apply '!' unary operator on: %s", operand));
                 }
             }
         }
@@ -59,23 +59,23 @@ public class UnaryExp extends Exp {
         switch (operator) {
             case OPERATOR_MINUS -> {
                 if (!(o instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '-' unary operator on: " + o);
+                    throw new IllegalArgumentException(String.format("Unable to apply '-' unary operator on: %s", o));
                 }
                 return o instanceof Integer ? -((Integer) o) : -((Double) o);
             }
             case OPERATOR_PLUS -> {
                 if (!(o instanceof Number)) {
-                    throw new IllegalArgumentException("Unable to apply '+' unary operator on: " + o);
+                    throw new IllegalArgumentException(String.format("Unable to apply '+' unary operator on: %s", o));
                 }
                 return o;
             }
             case OPERATOR_NOT -> {
                 if (!(o instanceof Boolean)) {
-                    throw new IllegalArgumentException("Unable to apply '!' unary operator on: " + o);
+                    throw new IllegalArgumentException(String.format("Unable to apply '!' unary operator on: %s", o));
                 }
                 return !(Boolean) o;
             }
-            default -> throw new IllegalStateException("Unknown unary operator: " + operator);
+            default -> throw new IllegalStateException(String.format("Unknown unary operator: %s", operator));
         }
     }
 

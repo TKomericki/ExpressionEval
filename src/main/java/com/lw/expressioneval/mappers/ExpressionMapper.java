@@ -69,7 +69,7 @@ public class ExpressionMapper {
 
             nodes.add(new ExpressionNode(type, null, null, null, null, value == null ? null : value.toString()));
         } else {
-            throw new IllegalArgumentException("Encountered unchecked Exp subclass: " + e.getClass());
+            throw new IllegalArgumentException(String.format("Encountered unchecked Exp subclass: %s", e.getClass()));
         }
 
         return nodes;
@@ -126,7 +126,7 @@ public class ExpressionMapper {
             case NULL -> {
                 return new NullExp();
             }
-            default -> throw new IllegalStateException("Encountered unchecked Node type, got: " + node.getNodeType());
+            default -> throw new IllegalStateException(String.format("Encountered unchecked Node type, got: %s", node.getNodeType()));
         }
     }
 }

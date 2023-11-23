@@ -26,7 +26,7 @@ public class FieldExp extends VariableExp {
         if (next == null) {
             return name;
         } else {
-            return name + (next instanceof IndexExp ? "" : ".") + next;
+            return String.format("%s%s%s", name, next instanceof IndexExp ? "" : ".", next);
         }
     }
 
@@ -51,7 +51,7 @@ public class FieldExp extends VariableExp {
     @Override
     public Object calculate(Map<String, Object> jsonObj, Object currentObj) {
         if (!(currentObj instanceof Map)) {
-            throw new IllegalArgumentException("Object given is not a map: " + (currentObj == null ? null : currentObj.getClass().getSimpleName()));
+            throw new IllegalArgumentException(String.format("Object given is not a map: %s", currentObj == null ? null : currentObj.getClass().getSimpleName()));
         }
 
         Object result = ((Map<?, ?>) currentObj).get(name);

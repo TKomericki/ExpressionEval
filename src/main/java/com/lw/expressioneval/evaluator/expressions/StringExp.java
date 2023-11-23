@@ -17,7 +17,7 @@ public class StringExp extends Exp {
 
     @Override
     public String toString() {
-        return "\"" + value + "\"";
+        return String.format("\"%s\"", value);
     }
 
     @Override
