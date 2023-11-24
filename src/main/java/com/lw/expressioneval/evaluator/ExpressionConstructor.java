@@ -53,7 +53,7 @@ public class ExpressionConstructor {
         Exp node = primary(tokens);
         while (isBinaryOperator(tokens.get(0)) && getPrecedence(tokens.get(0)) >= precedence) {
             ExpressionToken op = tokens.remove(0);
-            if (!OperatorUtils.operatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
+            if (!OperatorUtils.binaryOperatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
                 throw new IllegalArgumentException(String.format("This is not an operator: %s", op.getTokenValue()));
             }
 
@@ -61,20 +61,20 @@ public class ExpressionConstructor {
             if (!isRightAssociative(op)) prec += 1;
             Exp rightNode = expression(prec, tokens);
 
-            node = new BinaryExp(OperatorUtils.operatorMapper.get(op.getTokenValue().toLowerCase()), node, rightNode);
+            node = new BinaryExp(OperatorUtils.binaryOperatorMapper.get(op.getTokenValue().toLowerCase()), node, rightNode);
         }
         return node;
     }
 
     private static UnaryExp unary(List<ExpressionToken> tokens) {
         ExpressionToken op = tokens.remove(0);
-        if (!OperatorUtils.operatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
+        if (!OperatorUtils.unaryOperatorMapper.containsKey(op.getTokenValue().toLowerCase())) {
             throw new IllegalArgumentException(String.format("This is not an operator: %s", op.getTokenValue()));
         }
 
         int precedence = getPrecedence(op);
         Exp node = expression(precedence, tokens);
-        return new UnaryExp(OperatorUtils.operatorMapper.get(op.getTokenValue().toLowerCase()), node);
+        return new UnaryExp(OperatorUtils.unaryOperatorMapper.get(op.getTokenValue().toLowerCase()), node);
     }
 
     /**

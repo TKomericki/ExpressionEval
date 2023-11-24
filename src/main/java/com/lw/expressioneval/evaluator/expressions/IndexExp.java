@@ -43,12 +43,15 @@ public class IndexExp extends VariableExp {
 
     private void checkReturnTypeValidity() {
         ReturnType indexType = index.returns();
-        if (!(indexType == ReturnType.INTEGER || indexType == ReturnType.VARIABLE || indexType == ReturnType.NON_BOOLEAN)) {
-            throw new IllegalArgumentException(String.format("Index is neither integer nor a variable value, got: %s", index));
+
+        if (!(indexType == ReturnType.VARIABLE || indexType == ReturnType.NON_BOOLEAN)) {
+            if (indexType != ReturnType.INTEGER) {
+                throw new IllegalArgumentException(String.format("Index is neither integer nor a variable value, got: %s", index));
+            } else if (((Number) index.calculate(null)).intValue() < 0) {
+                throw new IllegalArgumentException(String.format("Index must be a non-negative integer, got: %s", index));
+            }
         }
-        if (indexType == ReturnType.INTEGER && ((Number) index.calculate(null)).intValue() < 0) {
-            throw new IllegalArgumentException(String.format("Index must be a non-negative integer, got: %s", index));
-        }
+
         if (next != null) {
             next.returns();
         }

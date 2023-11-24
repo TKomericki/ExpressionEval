@@ -106,7 +106,6 @@ public class ExpressionConstructorTests {
                 new ExpressionToken("", TokenType.END)
         )));
         assertEquals("Second operand of division is 0.", exception.getMessage());
-
     }
 
     @Test

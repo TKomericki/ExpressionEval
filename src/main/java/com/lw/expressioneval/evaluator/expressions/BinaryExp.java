@@ -2,6 +2,8 @@ package com.lw.expressioneval.evaluator.expressions;
 
 import com.lw.expressioneval.evaluator.enums.OperatorType;
 import com.lw.expressioneval.evaluator.enums.ReturnType;
+import com.lw.expressioneval.evaluator.visitors.BasicValidityVisitor;
+import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 import lombok.Getter;
 
 import java.util.List;
@@ -41,50 +43,34 @@ public class BinaryExp extends Exp {
         left = l;
         right = r;
 
-        checkReturnTypeValidity();
+        checkReturnTypeValidity(new BasicValidityVisitor());
+
+        // an additional check for division - if we know the second operand is 0, that is an illegal operation
+        // TODO: consider leaving division by 0 a legal operation as Java can use infinity as value
+        if (operator == OperatorType.OPERATOR_DIVIDE) {
+            checkDivisionByZero();
+        }
     }
 
-    private void checkReturnTypeValidity() {
+    private void checkDivisionByZero() {
+        ReturnType divisorType = right.returns();
+        if ((divisorType == ReturnType.INTEGER || divisorType == ReturnType.DOUBLE) && ((Number) right.calculate(null)).doubleValue() == 0) {
+            throw new IllegalArgumentException("Second operand of division is 0.");
+        }
+    }
+
+    private void checkReturnTypeValidity(ValidityVisitor visitor) {
         ReturnType leftExpType = left.returns();
         ReturnType rightExpType = right.returns();
 
-        boolean isLeftVar = leftExpType == ReturnType.VARIABLE || leftExpType == ReturnType.NON_BOOLEAN;
-        boolean isRightVar = rightExpType == ReturnType.VARIABLE || rightExpType == ReturnType.NON_BOOLEAN;
-
-        boolean cantBeNumber = !(leftExpType == ReturnType.INTEGER || leftExpType == ReturnType.DOUBLE || isLeftVar) ||
-                !(rightExpType == ReturnType.INTEGER || rightExpType == ReturnType.DOUBLE || isRightVar);
-
-        switch (operator) {
-            case OPERATOR_MINUS, OPERATOR_MULTIPLY, OPERATOR_POWER, OPERATOR_GREATER, OPERATOR_LESS, OPERATOR_GREATER_EQUAL, OPERATOR_LESS_EQUAL -> {
-                if (cantBeNumber) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
-                }
-            }
-            case OPERATOR_DIVIDE -> {
-                if (cantBeNumber) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
-                } else if (rightExpType != ReturnType.VARIABLE && ((Number) right.calculate(null)).doubleValue() == 0) {
-                    throw new IllegalArgumentException("Second operand of division is 0.");
-                }
-            }
-            case OPERATOR_PLUS -> {
-                if (!(leftExpType == ReturnType.INTEGER || leftExpType == ReturnType.DOUBLE || isLeftVar || leftExpType == ReturnType.STRING) ||
-                        !(rightExpType == ReturnType.INTEGER || rightExpType == ReturnType.DOUBLE || isRightVar || rightExpType == ReturnType.STRING)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '+' binary operator on:\n%s\n%s", left, right));
-                }
-            }
-            case OPERATOR_AND, OPERATOR_OR -> {
-                if (!(leftExpType == ReturnType.BOOLEAN || leftExpType == ReturnType.VARIABLE) ||
-                        !(rightExpType == ReturnType.BOOLEAN || rightExpType == ReturnType.VARIABLE)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.label, left, right));
-                }
-            }
+        if (!operator.isValid(visitor, leftExpType, rightExpType)) {
+            throw new IllegalArgumentException(String.format("Unable to apply '%s' binary operator on:\n%s\n%s", operator.getLabel(), left, right));
         }
     }
 
     @Override
     public String toString() {
-        return String.format("(%s %s %s)", left, operator.label, right);
+        return String.format("(%s %s %s)", left, operator.getLabel(), right);
     }
 
     @Override
@@ -125,6 +111,9 @@ public class BinaryExp extends Exp {
             case OPERATOR_DIVIDE -> {
                 if (!(l instanceof Number && r instanceof Number)) {
                     throw new IllegalArgumentException(String.format("Unable to apply '/' binary operand.\nOne of the operands is not a number:\n%s\n%s", l, r));
+                }
+                if (((Number) r).doubleValue() == 0) {
+                    throw new IllegalArgumentException("Illegal division by 0.");
                 }
                 return ((Number) l).doubleValue() / ((Number) r).doubleValue();
             }

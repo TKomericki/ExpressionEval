@@ -2,6 +2,8 @@ package com.lw.expressioneval.evaluator.expressions;
 
 import com.lw.expressioneval.evaluator.enums.OperatorType;
 import com.lw.expressioneval.evaluator.enums.ReturnType;
+import com.lw.expressioneval.evaluator.visitors.BasicValidityVisitor;
+import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 import lombok.Getter;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public class UnaryExp extends Exp {
     private Exp operand;
 
     private static List<OperatorType> validOperators = List.of(
-            OperatorType.OPERATOR_PLUS,
-            OperatorType.OPERATOR_MINUS,
+            OperatorType.OPERATOR_UNARY_PLUS,
+            OperatorType.OPERATOR_UNARY_MINUS,
             OperatorType.OPERATOR_NOT
     );
 
@@ -29,41 +31,32 @@ public class UnaryExp extends Exp {
         operator = o;
         operand = e;
 
-        checkReturnTypeValidity();
+        checkReturnTypeValidity(new BasicValidityVisitor());
     }
 
-    private void checkReturnTypeValidity() {
+    private void checkReturnTypeValidity(ValidityVisitor visitor) {
         ReturnType expType = operand.returns();
-        switch (operator) {
-            case OPERATOR_PLUS, OPERATOR_MINUS -> {
-                if (!(expType == ReturnType.INTEGER || expType == ReturnType.DOUBLE || expType == ReturnType.VARIABLE || expType == ReturnType.NON_BOOLEAN)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '%s' unary operator on: %s", operator.label, operand));
-                }
-            }
-            case OPERATOR_NOT -> {
-                if (!(expType == ReturnType.BOOLEAN || expType == ReturnType.VARIABLE)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '!' unary operator on: %s", operand));
-                }
-            }
+        if (!operator.isValid(visitor, expType)) {
+            throw new IllegalArgumentException(String.format("Unable to apply '%s' unary operator on: %s", operator.getLabel(), operand));
         }
     }
 
     @Override
     public String toString() {
-        return operator.label + operand;
+        return operator.getLabel() + operand;
     }
 
     @Override
     public Object calculate(Map<String, Object> jsonObj) {
         Object o = operand.calculate(jsonObj);
         switch (operator) {
-            case OPERATOR_MINUS -> {
+            case OPERATOR_UNARY_MINUS -> {
                 if (!(o instanceof Number)) {
                     throw new IllegalArgumentException(String.format("Unable to apply '-' unary operator on: %s", o));
                 }
                 return o instanceof Integer ? -((Integer) o) : -((Double) o);
             }
-            case OPERATOR_PLUS -> {
+            case OPERATOR_UNARY_PLUS -> {
                 if (!(o instanceof Number)) {
                     throw new IllegalArgumentException(String.format("Unable to apply '+' unary operator on: %s", o));
                 }
