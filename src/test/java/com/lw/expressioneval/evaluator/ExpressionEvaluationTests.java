@@ -61,11 +61,11 @@ public class ExpressionEvaluationTests {
     void evaluateFailsWhenVariableTypesAndOperatorsMismatch() {
         Exp ex = ExpressionParser.parseExpression(ValidExpressions.validExpression1);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> ex.calculate(Map.of("variable", "Nick")));
-        assertEquals("One of the operands is not a number:\nNick\n10", exception.getMessage());
+        assertEquals("Unable to apply '>' binary operator on the following operands.\nNick\n10", exception.getMessage());
 
         Exp ex2 = ExpressionParser.parseExpression("left and right");
         Exception exception2 = assertThrows(IllegalArgumentException.class, () -> ex2.calculate(Map.of("left", true, "right", 15)));
-        assertEquals("Unable to apply '&&' binary operand.\nSecond operand is not a boolean: 15", exception2.getMessage());
+        assertEquals("Unable to apply '&&' binary operator on the following operands.\ntrue\n15", exception2.getMessage());
 
         Exp ex3 = ExpressionParser.parseExpression("+variable > 20");
         Exception exception3 = assertThrows(IllegalArgumentException.class, () -> ex3.calculate(Map.of("variable", "Nick")));

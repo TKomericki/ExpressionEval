@@ -2,6 +2,7 @@ package com.lw.expressioneval.evaluator.expressions;
 
 import com.lw.expressioneval.evaluator.enums.OperatorType;
 import com.lw.expressioneval.evaluator.enums.ReturnType;
+import com.lw.expressioneval.evaluator.visitors.BasicCalculationVisitor;
 import com.lw.expressioneval.evaluator.visitors.BasicValidityVisitor;
 import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 import lombok.Getter;
@@ -49,26 +50,10 @@ public class UnaryExp extends Exp {
     @Override
     public Object calculate(Map<String, Object> jsonObj) {
         Object o = operand.calculate(jsonObj);
-        switch (operator) {
-            case OPERATOR_UNARY_MINUS -> {
-                if (!(o instanceof Number)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '-' unary operator on: %s", o));
-                }
-                return o instanceof Integer ? -((Integer) o) : -((Double) o);
-            }
-            case OPERATOR_UNARY_PLUS -> {
-                if (!(o instanceof Number)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '+' unary operator on: %s", o));
-                }
-                return o;
-            }
-            case OPERATOR_NOT -> {
-                if (!(o instanceof Boolean)) {
-                    throw new IllegalArgumentException(String.format("Unable to apply '!' unary operator on: %s", o));
-                }
-                return !(Boolean) o;
-            }
-            default -> throw new IllegalStateException(String.format("Unknown unary operator: %s", operator));
+        try {
+            return operator.calculate(new BasicCalculationVisitor(), o);
+        } catch (ClassCastException | NullPointerException e) {
+            throw new IllegalArgumentException(String.format("Unable to apply '%s' unary operator on: %s", operator.getLabel(), o));
         }
     }
 

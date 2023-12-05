@@ -1,5 +1,6 @@
 package com.lw.expressioneval.evaluator.enums;
 
+import com.lw.expressioneval.evaluator.visitors.CalculationVisitor;
 import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 
 /**
@@ -11,11 +12,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForAdditionOperator(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateAddition(operands[0], operands[1]);
+        }
     },
     OPERATOR_UNARY_PLUS("+") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 1 && visitor.validateForUnaryNonLogicOperators(operands[0]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 1) {
+                throw new IllegalArgumentException(String.format("Required 1 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateUnaryPlus(operands[0]);
         }
     },
     OPERATOR_MINUS("-") {
@@ -23,11 +40,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateSubtraction(operands[0], operands[1]);
+        }
     },
     OPERATOR_UNARY_MINUS("-") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 1 && visitor.validateForUnaryNonLogicOperators(operands[0]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 1) {
+                throw new IllegalArgumentException(String.format("Required 1 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateUnaryMinus(operands[0]);
         }
     },
     OPERATOR_MULTIPLY("*") {
@@ -35,11 +68,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateMultiplication(operands[0], operands[1]);
+        }
     },
     OPERATOR_DIVIDE("/") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForDivisionOperator(operands[0], operands[1]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateDivision(operands[0], operands[1]);
         }
     },
     OPERATOR_POWER("^") {
@@ -47,11 +96,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculatePower(operands[0], operands[1]);
+        }
     },
     OPERATOR_AND("&&") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForLogicOperators(operands[0], operands[1]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateLogicAnd(operands[0], operands[1]);
         }
     },
     OPERATOR_OR("||") {
@@ -59,11 +124,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForLogicOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateLogicOr(operands[0], operands[1]);
+        }
     },
     OPERATOR_NOT("!") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForUnaryLogicOperators(operands[0]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 1) {
+                throw new IllegalArgumentException(String.format("Required 1 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateLogicNot(operands[0]);
         }
     },
     OPERATOR_EQUAL("==") {
@@ -71,11 +152,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForEqualityOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateEquality(operands[0], operands[1]);
+        }
     },
     OPERATOR_NOT_EQUAL("!=") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForEqualityOperators(operands[0], operands[1]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateInequality(operands[0], operands[1]);
         }
     },
     OPERATOR_GREATER(">") {
@@ -83,11 +180,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateGreaterThan(operands[0], operands[1]);
+        }
     },
     OPERATOR_GREATER_EQUAL(">=") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateGreaterOrEqual(operands[0], operands[1]);
         }
     },
     OPERATOR_LESS("<") {
@@ -95,11 +208,27 @@ public enum OperatorType {
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
         }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateLessThan(operands[0], operands[1]);
+        }
     },
     OPERATOR_LESS_EQUAL("<=") {
         @Override
         public boolean isValid(ValidityVisitor visitor, ReturnType... operands) {
             return operands.length == 2 && visitor.validateForNumberOperators(operands[0], operands[1]);
+        }
+
+        @Override
+        public Object calculate(CalculationVisitor visitor, Object... operands) {
+            if (operands.length != 2) {
+                throw new IllegalArgumentException(String.format("Required 2 operands, but %d were supplied", operands.length));
+            }
+            return visitor.calculateLessOrEqual(operands[0], operands[1]);
         }
     };
 
@@ -110,6 +239,8 @@ public enum OperatorType {
     }
 
     abstract public boolean isValid(ValidityVisitor visitor, ReturnType... operands);
+
+    abstract public Object calculate(CalculationVisitor visitor, Object... operands);
 
     OperatorType(String label) {
         this.label = label;
