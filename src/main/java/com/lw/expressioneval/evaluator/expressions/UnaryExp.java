@@ -3,6 +3,7 @@ package com.lw.expressioneval.evaluator.expressions;
 import com.lw.expressioneval.evaluator.enums.OperatorType;
 import com.lw.expressioneval.evaluator.enums.ReturnType;
 import com.lw.expressioneval.evaluator.visitors.BasicCalculationVisitor;
+import com.lw.expressioneval.evaluator.visitors.BasicReturnVisitor;
 import com.lw.expressioneval.evaluator.visitors.BasicValidityVisitor;
 import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 import lombok.Getter;
@@ -59,7 +60,7 @@ public class UnaryExp extends Exp {
 
     @Override
     public ReturnType returns() {
-        return operand.returns();
+        return operator.returns(new BasicReturnVisitor(), operand.returns());
     }
 
     @Override

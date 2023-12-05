@@ -3,6 +3,7 @@ package com.lw.expressioneval.evaluator.expressions;
 import com.lw.expressioneval.evaluator.enums.OperatorType;
 import com.lw.expressioneval.evaluator.enums.ReturnType;
 import com.lw.expressioneval.evaluator.visitors.BasicCalculationVisitor;
+import com.lw.expressioneval.evaluator.visitors.BasicReturnVisitor;
 import com.lw.expressioneval.evaluator.visitors.BasicValidityVisitor;
 import com.lw.expressioneval.evaluator.visitors.ValidityVisitor;
 import lombok.Getter;
@@ -73,7 +74,7 @@ public class BinaryExp extends Exp {
     public String toString() {
         return String.format("(%s %s %s)", left, operator.getLabel(), right);
     }
-    
+
     @Override
     public Object calculate(Map<String, Object> jsonObj) {
         Object l = left.calculate(jsonObj);
@@ -101,34 +102,7 @@ public class BinaryExp extends Exp {
         ReturnType leftExpType = left.returns();
         ReturnType rightExpType = right.returns();
 
-        boolean isVariable = leftExpType == ReturnType.VARIABLE || rightExpType == ReturnType.VARIABLE ||
-                leftExpType == ReturnType.NON_BOOLEAN || rightExpType == ReturnType.NON_BOOLEAN;
-
-        switch (operator) {
-            case OPERATOR_MINUS, OPERATOR_MULTIPLY -> {
-                if (isVariable)
-                    return ReturnType.NON_BOOLEAN;
-                else if (leftExpType == ReturnType.DOUBLE || rightExpType == ReturnType.DOUBLE)
-                    return ReturnType.DOUBLE;
-                else return ReturnType.INTEGER;
-            }
-            case OPERATOR_DIVIDE, OPERATOR_POWER -> {
-                return ReturnType.DOUBLE;
-            }
-            case OPERATOR_PLUS -> {
-                if (leftExpType == ReturnType.STRING || rightExpType == ReturnType.STRING)
-                    return ReturnType.STRING;
-                else if (isVariable)
-                    return ReturnType.NON_BOOLEAN;
-                else if (leftExpType == ReturnType.DOUBLE || rightExpType == ReturnType.DOUBLE)
-                    return ReturnType.DOUBLE;
-                else return ReturnType.INTEGER;
-            }
-            case OPERATOR_AND, OPERATOR_OR, OPERATOR_GREATER, OPERATOR_LESS, OPERATOR_GREATER_EQUAL, OPERATOR_LESS_EQUAL, OPERATOR_EQUAL, OPERATOR_NOT_EQUAL -> {
-                return ReturnType.BOOLEAN;
-            }
-            default -> throw new IllegalStateException(String.format("Unknown binary operator: %s", operator));
-        }
+        return operator.returns(new BasicReturnVisitor(), leftExpType, rightExpType);
     }
 
     @Override
